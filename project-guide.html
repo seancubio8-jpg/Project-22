@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SmartSip | Project Details & Build Guide</title>
+<link rel="stylesheet" href="guide.css">
+</head>
+<body>
+<header><div class="wrap head"><div class="brand">Smart<span>Sip</span> · Project Guide</div><nav class="navlinks"><a href="index.html">Open simulator</a><a href="photos.html">Project photos</a><a href="#materials">Materials</a><a href="#steps">Build steps</a></nav></div></header>
+<main class="wrap">
+<section class="hero">
+<div class="eyebrow">Arduino water dispenser · documentation</div>
+<h1>How the SmartSip water dispenser is designed and built</h1>
+<p class="lead">A proposed Arduino-controlled dispenser that monitors the water supply and dispenses measured portions. This guide explains the concept, suggested hardware, connections, assembly sequence, and operating cycle.</p>
+<div class="note"><b>Important project status:</b> The companion <a href="index.html">SmartSip website</a> is a browser simulator. It demonstrates the control logic, but it does not connect to physical Arduino hardware. The parts and construction steps below describe a suggested physical prototype that would need to be assembled, programmed, calibrated, and tested separately.</div>
+</section>
+
+<section class="card">
+<h2>1. Project overview</h2>
+<p>SmartSip is designed to make water dispensing more controlled and convenient. A microcontroller reads the water level in a reservoir. A user chooses a portion size and starts dispensing. The controller operates a low-voltage pump, while a flow sensor can measure the amount delivered. A display can show the water level and system status.</p>
+<p><span class="pill">Main goal</span> Monitor the tank and dispense a selected amount of water with a simple user interface.</p>
+</section>
+
+<section class="card">
+<h2>2. Build illustration</h2><p><a href="photos.html">Open the SmartSip photo gallery</a> to view and download the individual project images.</p>
+<img class="infographic" src="assets/smartsip-build-infographic.png" alt="SmartSip project infographic showing a proposed dispenser, components, wiring concept, and six assembly steps">
+<p class="caption">Illustrative concept artwork for planning and presentation. It is not a photograph of a verified completed build or a wiring diagram to follow without checking the actual module pinouts.</p>
+</section>
+
+<section class="card" id="materials">
+<h2>3. Materials and components</h2>
+<p>The following is a suggested bill of materials for a small tabletop prototype. Select the pump, power supply, tubing, and driver based on the actual electrical ratings and physical design.</p>
+<table>
+<thead><tr><th>Item</th><th>Suggested quantity</th><th>Purpose</th><th>Notes</th></tr></thead>
+<tbody>
+<tr><td>Arduino Uno or Nano</td><td>1</td><td>Main controller; reads sensors and controls dispensing.</td><td>Uno is easier for a classroom prototype; Nano is more compact.</td></tr>
+<tr><td>Waterproof ultrasonic sensor (e.g. JSN-SR04T) or suitable level sensor</td><td>1</td><td>Measures the distance to the water surface to estimate tank level.</td><td>A common HC-SR04 is not waterproof; protect it from splashes or choose a waterproof model.</td></tr>
+<tr><td>Water flow sensor (e.g. YF-S201, if compatible with flow rate)</td><td>1</td><td>Counts flow pulses to estimate the volume dispensed.</td><td>Must be calibrated. Check its material and suitability for drinking-water contact.</td></tr>
+<tr><td>Low-voltage DC water pump</td><td>1</td><td>Moves water from the reservoir to the outlet.</td><td>Choose a food-safe/water-compatible pump and note its voltage and current.</td></tr>
+<tr><td>MOSFET driver module or properly rated relay module</td><td>1</td><td>Switches pump power using a signal from the Arduino.</td><td>Driver must handle the pump's startup and operating current. Add suitable flyback protection for inductive loads.</td></tr>
+<tr><td>DC power supply for the pump</td><td>1</td><td>Provides the pump's required power.</td><td>Match the pump rating; do not power the pump directly from an Arduino pin.</td></tr>
+<tr><td>USB / regulated 5V supply for Arduino</td><td>1</td><td>Powers the controller and low-power modules.</td><td>Use a stable supply appropriate for the board.</td></tr>
+<tr><td>Push buttons</td><td>3–4</td><td>Select portion, start, stop, and optionally refill/reset.</td><td>Can use Arduino internal pull-up resistors in the program.</td></tr>
+<tr><td>16×2 I2C LCD (optional)</td><td>1</td><td>Shows level, selected amount, and status.</td><td>Optional; the website simulator uses a screen-style status display.</td></tr>
+<tr><td>Food-grade reservoir, tubing, and outlet nozzle</td><td>1 set</td><td>Stores and delivers the water.</td><td>Use clean, food-contact-rated materials and secure leak-free fittings.</td></tr>
+<tr><td>Breadboard / screw terminals / jumper wires</td><td>As needed</td><td>Connects low-voltage control electronics.</td><td>Use secure terminals for pump current; a solderless breadboard is not suitable for high pump current.</td></tr>
+<tr><td>Enclosure, mounting hardware, fuse, and drip protection</td><td>As needed</td><td>Holds and protects the assembly.</td><td>Keep electronics physically separated from the water path.</td></tr>
+</tbody></table>
+<div class="warning"><b>Drinking-water and electrical safety:</b> Use only low-voltage DC around the dispenser, a correctly rated protected power supply, and food-safe wetted parts. Keep the Arduino, driver, connectors, and power supply in a dry compartment away from leaks and condensation. Do not put mains-voltage wiring near the water container. Have the wiring and enclosure checked by a qualified instructor or technician before powering a physical build.</div>
+</section>
+
+<section class="card">
+<h2>4. System architecture</h2>
+<p>The physical prototype can be divided into four parts:</p>
+<div class="grid">
+<div class="step"><b>Input section</b><p>Water-level sensor, flow sensor, and push buttons send readings or commands to the Arduino.</p></div>
+<div class="step"><b>Controller section</b><p>The Arduino checks the tank level, reads the selected portion, counts flow pulses, and decides when to stop.</p></div>
+<div class="step"><b>Output section</b><p>A MOSFET driver or relay switches the DC pump. An optional LCD displays the current state.</p></div>
+<div class="step"><b>Water path</b><p>Reservoir → pump → food-grade tubing → flow sensor → outlet nozzle → cup. Exact order depends on the pump and sensor manufacturer's instructions.</p></div>
+</div>
+<p class="small">A flow sensor is recommended for measured portions. A timed pump run alone only estimates volume and can vary with pump, head height, and battery/supply voltage.</p>
+</section>
+
+<section class="card">
+<h2>5. Suggested connection plan</h2>
+<p>This is an example pin assignment, not a verified schematic. Confirm the pinout and voltage requirements of every module before connecting it.</p>
+<table>
+<thead><tr><th>Module / signal</th><th>Example Arduino connection</th><th>Function</th></tr></thead>
+<tbody>
+<tr><td>Ultrasonic trigger</td><td>D9</td><td>Sends the measurement trigger.</td></tr>
+<tr><td>Ultrasonic echo</td><td>D10</td><td>Receives the echo pulse; check voltage compatibility for the selected sensor/board.</td></tr>
+<tr><td>Flow sensor signal</td><td>D2 (interrupt-capable on Uno)</td><td>Counts pulses for volume measurement.</td></tr>
+<tr><td>Pump driver control</td><td>D6</td><td>Turns the pump driver on/off.</td></tr>
+<tr><td>Select / Start / Stop buttons</td><td>D3 / D4 / D5</td><td>Reads user commands.</td></tr>
+<tr><td>I2C LCD SDA / SCL (optional)</td><td>A4 / A5 on Uno</td><td>Displays status and readings.</td></tr>
+<tr><td>Module grounds</td><td>Common reference where required by the driver design</td><td>Allows control signals to be referenced correctly.</td></tr>
+</tbody></table>
+<div class="note"><b>Power wiring:</b> The pump uses its own correctly rated DC supply through the driver. Never connect a pump directly to an Arduino I/O pin or assume the Arduino 5V pin can supply the pump current. Follow the driver module's wiring diagram; some relay modules and MOSFET boards have different terminal layouts.</div>
+</section>
+
+<section class="card" id="steps">
+<h2>6. Step-by-step construction process</h2>
+<div class="grid">
+<div class="step"><span class="num">1</span><h3>Plan the layout</h3><p>Choose a stable base and reservoir position. Mark separate dry and wet zones. Decide where the pump, sensor, outlet, buttons, and optional LCD will fit.</p></div>
+<div class="step"><span class="num">2</span><h3>Prepare the water container</h3><p>Clean the food-grade reservoir. Make secure openings or fittings for the pump intake, tubing, and sensor mount as required by the design. Prevent sharp edges and leaks.</p></div>
+<div class="step"><span class="num">3</span><h3>Build the water path</h3><p>Connect the reservoir, pump, flow sensor, tubing, and nozzle according to the component instructions. Secure the tubing and check that water cannot drip onto electronics.</p></div>
+<div class="step"><span class="num">4</span><h3>Mount the electronics</h3><p>Install the Arduino, pump driver, button wiring, and optional display inside a dry enclosure. Keep connectors protected and provide strain relief for cables.</p></div>
+<div class="step"><span class="num">5</span><h3>Connect the sensors</h3><p>Wire the level sensor and flow sensor to the chosen input pins. Check supply voltage, signal levels, polarity, and the manufacturer's pin labels before powering up.</p></div>
+<div class="step"><span class="num">6</span><h3>Connect the pump driver</h3><p>Wire the DC pump through a properly rated MOSFET or relay driver and its separate supply. Add the required fuse and inductive-load protection specified by the design.</p></div>
+<div class="step"><span class="num">7</span><h3>Upload and configure the program</h3><p>Write or upload Arduino firmware to read the sensors, handle the buttons, count flow pulses, drive the pump, and stop at the selected volume or a low-water condition.</p></div>
+<div class="step"><span class="num">8</span><h3>Calibrate the readings</h3><p>Compare flow-sensor pulse counts with a measured container of water. Determine the pulses-per-millilitre value for the actual sensor and pump setup. Calibrate the tank-level readings too.</p></div>
+<div class="step"><span class="num">9</span><h3>Test safely</h3><p>Test the electronics first without water, then test for leaks with the electronics isolated. Verify stop behavior, low-water protection, and repeatability using small amounts of water.</p></div>
+<div class="step"><span class="num">10</span><h3>Enclose and document</h3><p>After testing, secure the wiring, close the dry enclosure, label the buttons and power input, and document the final pin map and calibration values.</p></div>
+</div>
+</section>
+
+<section class="card">
+<h2>7. How the dispenser operates</h2>
+<ol>
+<li><b>Power on:</b> The Arduino initializes the sensors, buttons, pump driver, and optional display.</li>
+<li><b>Check tank:</b> The level sensor estimates how much water remains. Dispensing should be disabled if the tank is too low.</li>
+<li><b>Select a portion:</b> The user selects a target amount, for example 100 mL, 250 mL, or 500 mL.</li>
+<li><b>Start dispensing:</b> The controller activates the pump driver and monitors flow-sensor pulses.</li>
+<li><b>Stop at target:</b> When the calibrated pulse count reaches the target volume, the controller switches the pump off.</li>
+<li><b>Update status:</b> The display reports the amount dispensed and remaining tank level.</li>
+<li><b>Stop or refill:</b> The user can stop a cycle. If the tank is low or empty, the system should alert the user and prevent dry running.</li>
+</ol>
+<p class="small">These are proposed physical-system behaviors. The current website simulates portion dispensing and tank-level changes; it does not read real sensors or drive a real pump.</p>
+</section>
+
+<section class="card">
+<h2>8. What the current website simulator demonstrates</h2>
+<ul>
+<li>Animated tank level and remaining-water percentage.</li>
+<li>Selection of 100 mL, 250 mL, or 500 mL portions.</li>
+<li>Manual dispensing and automatic dispensing simulation.</li>
+<li>Stop and refill controls.</li>
+<li>Session dispensing counter, status messages, and event log.</li>
+</ul>
+<p>Open the <a href="index.html">SmartSip simulator</a> to try these functions. For a real device, the browser simulation would need to be replaced or connected to firmware and suitable hardware.</p>
+</section>
+
+<section class="card">
+<h2>9. Testing checklist</h2>
+<ul>
+<li>Confirm the water-level reading at full, half-full, and low levels.</li>
+<li>Confirm the pump cannot start when the tank is below the safe threshold.</li>
+<li>Measure the delivered volume for each selected portion.</li>
+<li>Check that Stop immediately disables the pump driver.</li>
+<li>Check for leaks and ensure the electronics compartment remains dry.</li>
+<li>Repeat tests and record calibration values and any errors.</li>
+</ul>
+</section>
+</main>
+<footer><div class="wrap">SmartSip project guide · Hardware list and wiring are a proposed prototype plan, not a verified as-built record.</div></footer>
+</body></html>
